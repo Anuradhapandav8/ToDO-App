@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To Do Application</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: aliceblue;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .heading {
+      font-family: fantasy;
+      font-size: 2rem;
+      color: orange;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .todo-list {
+      padding: 100px 20px 140px; /* leave space for fixed footer */
+    }
+
+    .add-task-container {
+      background-color: black;
+      padding: 20px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .task-input,
+    .prio-select,
+    .btn-add {
+      font-size: 1rem;
+      padding: 12px;
+      border-radius: 5px;
+    }
+
+    .task-input,
+    .prio-select {
+      flex: 1 1 200px;
+      min-width: 120px;
+      max-width: 300px;
+    }
+
+    .btn-add {
+      background-color: orange;
+      border: none;
+      cursor: pointer;
+      flex: 0 0 auto;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .btn-add:hover {
+      background-color: darkorange;
+    }
+
+    .task-card {
+      border: 1px solid black;
+      margin: 10px 0;
+      padding: 10px;
+      position: relative;
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-card-title {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .task-card-prio {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background-color: rgb(232, 232, 114);
+      width: 100px;
+      text-align: center;
+      border-radius: 20px;
+      padding: 4px;
+      font-size: 0.9rem;
+    }
+
+    .bin-icon {
+      height: 20px;
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .add-task-container {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px;
+      }
+
+      .task-input,
+      .prio-select,
+      .btn-add {
+        width: 100%;
+        font-size: 1.1rem;
+        padding: 14px;
+      }
+
+      .heading {
+        font-size: 1.6rem;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="heading">ToDo App</h1>
+
+  <div class="todo-list" id="todo-list"></div>
+
+  <div class="add-task-container">
+    <input type="text" id="task" class="task-input" placeholder="Enter task" />
+    <select id="prio" class="prio-select">
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <button onclick="addTask()" class="btn-add">Add Task</button>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      tasks = JSON.parse(savedTasks);
+    }
+
+    function addTask() {
+      const inputTaskElement = document.getElementById('task');
+      const inputPrioElement = document.getElementById('prio');
+
+      const newTask = {
+        task: inputTaskElement.value.trim(),
+        prio: inputPrioElement.value || 'medium'
+      };
+
+      if (newTask.task !== '') {
+        tasks.unshift(newTask);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        renderTodolist(tasks);
+        inputTaskElement.value = '';
+      } else {
+        alert('Please enter a task.');
+      }
+    }
+
+    function renderTodolist(taskList) {
+      const todoListElement = document.getElementById("todo-list");
+      todoListElement.innerHTML = "";
+
+      for (let i = 0; i < taskList.length; i++) {
+        const taskObj = taskList[i];
+        todoListElement.innerHTML += `
+          <div class="task-card">
+            <h3 class="task-card-title">${taskObj.task}</h3>
+            <span class="task-card-prio">${taskObj.prio}</span>
+            <img src="delete.png" onclick="removeTask(${i})" class="bin-icon" alt="Delete"/>
+          </div>
+        `;
+      }
+    }
+
+    function removeTask(taskIndex) {
+      tasks.splice(taskIndex, 1);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      renderTodolist(tasks);
+    }
+
+    // Initial render
+    renderTodolist(tasks);
+  </script>
+
+</body>
+</html>
